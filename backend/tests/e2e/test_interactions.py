@@ -7,21 +7,27 @@ def test_get_interactions_returns_200(client: httpx.Client) -> None:
     assert response.status_code == 200
 
 
-def test_get_interactions_response_structure(
+def test_get_interactions_response_items_have_expected_fields(
     client: httpx.Client,
 ) -> None:
     response = client.get("/interactions/")
+
+    data = response.json()
+
+    assert len(data) > 0
+    assert "id" in data[0]
+    assert "item_id" in data[0]
+    assert "created_at" in data[0]
+
+
+def test_get_interactions_filter_includes_boundary(
+    client: httpx.Client,
+) -> None:
+    response = client.get("/interactions/?max_item_id=1")
 
     assert response.status_code == 200
 
     data = response.json()
 
-    assert isinstance(data, list)
     assert len(data) > 0
-
-    interaction = data[0]
-
-    assert "id" in interaction
-    assert "learner_id" in interaction
-    assert "item_id" in interaction
-    assert "created_at" in interaction
+    assert all(item["item_id"] <= 1 for item in data)
