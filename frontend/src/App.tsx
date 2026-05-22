@@ -37,6 +37,7 @@ function App() {
     () => localStorage.getItem(STORAGE_KEY) ?? '',
   )
   const [draft, setDraft] = useState('')
+  const [selectedType, setSelectedType] = useState('All')
   const [fetchState, dispatch] = useReducer(fetchReducer, { status: 'idle' })
 
   useEffect(() => {
@@ -99,28 +100,56 @@ function App() {
       {fetchState.status === 'loading' && <p>Loading...</p>}
       {fetchState.status === 'error' && <p>Error: {fetchState.message}</p>}
 
-      {fetchState.status === 'success' && (
-        <table>
-          <thead>
-            <tr>
-              <th>ID</th>
-              <th>Type</th>
-              <th>Title</th>
-              <th>Created at</th>
+      {fetchState.status === 'success' && (() => {
+  const itemTypes = [
+    'All',
+    ...new Set(fetchState.items.map((item) => item.type)),
+  ]
+
+  const filteredItems =
+    selectedType === 'All'
+      ? fetchState.items
+      : fetchState.items.filter((item) => item.type === selectedType)
+
+  return (
+    <>
+      <label>
+        Type:{' '}
+        <select
+          value={selectedType}
+          onChange={(event) => setSelectedType(event.target.value)}
+        >
+          {itemTypes.map((type) => (
+            <option key={type} value={type}>
+              {type}
+            </option>
+          ))}
+        </select>
+      </label>
+
+      <table>
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Type</th>
+            <th>Title</th>
+            <th>Created at</th>
+          </tr>
+        </thead>
+        <tbody>
+          {filteredItems.map((item) => (
+            <tr key={item.id}>
+              <td>{item.id}</td>
+              <td>{item.type}</td>
+              <td>{item.title}</td>
+              <td>{item.created_at}</td>
             </tr>
-          </thead>
-          <tbody>
-            {fetchState.items.map((item) => (
-              <tr key={item.id}>
-                <td>{item.id}</td>
-                <td>{item.type}</td>
-                <td>{item.title}</td>
-                <td>{item.created_at}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      )}
+          ))}
+        </tbody>
+      </table>
+    </>
+  )
+})()}
     </div>
   )
 }
