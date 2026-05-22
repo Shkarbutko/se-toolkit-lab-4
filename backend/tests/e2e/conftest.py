@@ -24,6 +24,7 @@ def client() -> httpx.Client:
     except ValidationError:
         pytest.skip(".env.tests.secret is missing or incomplete")
     return httpx.Client(
-        base_url=s.api_base_url.rstrip("/"),
-        headers={"Authorization": f"Bearer {s.api_key}"},
-    )
+    base_url=s.api_base_url.rstrip("/"),
+    headers={"Authorization": f"Bearer {s.api_key}"},
+    timeout=30.0,
+)
