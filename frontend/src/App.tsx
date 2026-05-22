@@ -37,7 +37,7 @@ function App() {
     () => localStorage.getItem(STORAGE_KEY) ?? '',
   )
   const [draft, setDraft] = useState('')
-  const [selectedType, setSelectedType] = useState('All')
+  const [selectedType, setSelectedType] = useState('')
   const [fetchState, dispatch] = useReducer(fetchReducer, { status: 'idle' })
 
   useEffect(() => {
@@ -101,13 +101,10 @@ function App() {
       {fetchState.status === 'error' && <p>Error: {fetchState.message}</p>}
 
       {fetchState.status === 'success' && (() => {
-  const itemTypes = [
-    'All',
-    ...new Set(fetchState.items.map((item) => item.type)),
-  ]
+  const itemTypes = [...new Set(fetchState.items.map((item) => item.type))]
 
   const filteredItems =
-    selectedType === 'All'
+    selectedType === ''
       ? fetchState.items
       : fetchState.items.filter((item) => item.type === selectedType)
 
@@ -119,6 +116,7 @@ function App() {
           value={selectedType}
           onChange={(event) => setSelectedType(event.target.value)}
         >
+          <option value="">All</option>
           {itemTypes.map((type) => (
             <option key={type} value={type}>
               {type}
